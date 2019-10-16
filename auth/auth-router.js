@@ -29,8 +29,10 @@ router.post('/login', (req, res) => {
 
       if (user && bcrypt.compareSync(password, user.password)) {
         // library previous will generate token automatically
+        // produce a token, save data about user in token
         const token = generateToken(user)
 
+        // add token to response
         res.status(200).json({
           message: `Welcome ${user.username}!`,
           token,
@@ -46,19 +48,23 @@ router.post('/login', (req, res) => {
 
 // generate token user
 function generateToken(user) {
-  // invoke the JWT sign method
-  // at least 3 params, secret used to decrypt token
-  const payload = { // some props are standard: subject, username
+
+  // payload: some props are standard: subject, username
+  const payload = {
     subject: user.id, // sub
     username: user.username,
     // ...other data
   }
+
   // no longer needed when we make secrets file
   // const secret = 'wsfkmwefodfcwlkemfrkf'
+
   const options = {
-    expiresIn: '8h' // more options in library: npmjs.com
+    expiresIn: '8h' // more options: https://www.npmjs.com/package/jsonwebtoken#jwtsignpayload-secretorprivatekey-options-callback
   }
 
+  // invoke the JWT sign method - produce and sign token
+  // at least 3 params, secret used to decrypt token
   return jwt.sign(payload, secrets.jwtSecret, options)
 }
 
